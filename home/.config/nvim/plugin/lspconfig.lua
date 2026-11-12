@@ -152,6 +152,7 @@ fzf.setup {
   },
   keymap = {
     fzf = {
+      ["ctrl-c"] = "clear-query",
       ["alt-k"] = "previous-history",
       ["alt-j"] = "next-history",
     }

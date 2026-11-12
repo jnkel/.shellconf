@@ -23,7 +23,7 @@ syntax on
 autocmd BufWritePost src.md silent !./render.sh
 autocmd BufWritePost *.cho !bash -c "chordpro %:S > %:r:S.pdf"
 autocmd BufNewFile *.hw 0r ~/.vim/templates/template.hw
-autocmd Filetype gitcommit set textwidth=72
+autocmd Filetype gitcommit,jjdescription set textwidth=72
 autocmd Filetype plaintex,tex,pandoc setlocal textwidth=100
 autocmd Filetype plaintex,tex set spell
 autocmd BufNew * set bufhidden=delete
@@ -251,7 +251,7 @@ set updatetime=300
 nnoremap <silent><nowait> <Leader>f :FzfLua git_files<cr>
 nnoremap <silent><nowait> <Leader>F :FzfLua files<cr>
 nnoremap <silent><nowait> <Leader>o :FzfLua oldfiles<cr>
-nnoremap <silent><nowait> <Leader>s :FzfLua live_grep<cr>
+nnoremap <silent><nowait> <Leader>s :FzfLua live_grep_native resume=true<cr>
 
 " use n/N to repeat last jump/goto action
 let s:jump_next = "n"
@@ -310,6 +310,9 @@ if !empty($WORK)
     imap <silent><script><expr> <S-CR> copilot#Accept("")
     let g:copilot_no_tab_map = v:true
 
+    autocmd BufNewFile,BufRead ~/code/rust/* Copilot disable
+    autocmd Filetype gitcommit,jjdescription Copilot disable
+
     function! CopilotCLI()
         let prompt = input({"prompt": "?", "cancelreturn": v:null})
         if prompt is v:null
@@ -317,7 +320,7 @@ if !empty($WORK)
         endif
         let position = "@" . shellescape(expand("%")) . ":" . getcurpos()[1] . ":" . getcurpos()[2]
 
-        call system("kitty @ launch --cwd=current fish -lc \"exec copilot --model claude-haiku-4.5 " .
+        call system("kitty @ launch --cwd=current sh -lc \"exec copilot --model auto " .
                     \ "-i '" . position . ": '" . shellescape(prompt) . "\"")
     endfunction
 
