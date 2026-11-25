@@ -6,7 +6,7 @@ require('lspsettings').extend {
       "compiler/rustc_codegen_gcc/Cargo.toml",
       "library/Cargo.toml",
       "src/bootstrap/Cargo.toml",
-      "src/tools/rust-analyzer/Cargo.toml"
+      "src/tools/rust-analyzer/Cargo.toml",
     },
     check = {
       invocationStrategy = "once",
@@ -21,20 +21,20 @@ require('lspsettings').extend {
     },
     rustfmt = {
       overrideCommand = {
-        "build/host/rustfmt/bin/rustfmt",
+        vim.fn.getcwd() .. "/build/host/rustfmt/bin/rustfmt",
         "--edition=2024"
       }
     },
     procMacro = {
-      server = "build/host/stage0/libexec/rust-analyzer-proc-macro-srv",
+      server = vim.fn.getcwd() .. "/build/host/stage0/libexec/rust-analyzer-proc-macro-srv",
       enable = true
     },
     rustc = {
       source = "./Cargo.toml"
     },
     cargo = {
-      sysrootSrc = "./library",
-      extraEnv = { RUSTC_BOOTSTRAP = "1" },
+      sysroot = vim.fn.getcwd() .. "/build/host/stage0",
+      sysrootSrc = vim.fn.getcwd() .. "/library",
       buildScripts = {
         enable = true,
         invocationStrategy = "once",
@@ -47,12 +47,13 @@ require('lspsettings').extend {
           "--build-dir",
           "build-rust-analyzer"
         }
-      }
+      },
+      extraEnv = { RUSTC_BOOTSTRAP = "1" }
     },
     server = {
       extraEnv = {
-        RUSTC = "build/host/stage0/bin/rustc",
-        CARGO = "build/host/stage0/bin/cargo"
+        RUSTC = vim.fn.getcwd() .. "/build/host/stage0/bin/rustc",
+        CARGO = vim.fn.getcwd() .. "/build/host/stage0/bin/cargo",
       }
     }
   }

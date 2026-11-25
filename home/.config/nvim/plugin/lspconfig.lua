@@ -2,14 +2,14 @@ local fzf = require('fzf-lua')
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
-local rust_analyzer = vim.fn.executable('lspmux') ~= 0 and { 'sh', '-c', 'exec lspmux client --server-path $(rustup +nightly which rust-analyzer)' } or { 'rust-analyzer' }
+local rust_analyzer = vim.fn.executable('lspmux') ~= 0 and { 'sh', '-c', 'exec lspmux client --server-path $(rustup which rust-analyzer)' } or { 'rust-analyzer' }
 -- local rust_analyzer = { '/Users/keljonathan/code/rust-analyzer/target/release/rust-analyzer' }
+-- local rust_analyzer = { 'rust-analyzer' }
 local settings = vim.tbl_deep_extend(
     "keep",
     require('lspsettings').settings,
     {
         ['rust-analyzer'] = {
-            cmd = rust_analyzer,
             filetypes = {'rust'},
             checkOnSave = true,
             check = {
@@ -20,9 +20,9 @@ local settings = vim.tbl_deep_extend(
                 buildScripts = {
                     enable = true
                 },
-                procMacro = {
-                    enable = true
-                }
+            },
+            procMacro = {
+                enable = true
             }
         }
     }
@@ -30,7 +30,7 @@ local settings = vim.tbl_deep_extend(
 
 vim.lsp.config('*', {
     capabilities = capabilities,
-    settings = settings
+    settings = settings,
 })
 vim.lsp.config('rust-analyzer', {
     cmd = (vim.fn.expand("%:t") == "build.rs") and { 'rust-analyzer',  '+nightly' } or rust_analyzer,
@@ -40,7 +40,15 @@ vim.lsp.config('clangd', {
     filetypes = {"c", "cpp", "cc", "arduino"}
 })
 
-vim.lsp.enable({'rust-analyzer', 'clangd', 'pylsp'})
+for server, config in pairs(settings) do 
+  local extraEnv = (config.server or {}).extraEnv
+  if extraEnv then
+    vim.lsp.config(server, { cmd_env = extraEnv })
+  end
+end
+
+--vim.lsp.enable({'rust-analyzer', 'clangd', 'pylsp'})
+vim.lsp.enable({'rust-analyzer', 'clangd'})
 
 local cmp = require 'cmp'
 local luasnip = require 'luasnip'
